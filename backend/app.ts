@@ -19,8 +19,10 @@ app.get('/ping', (req, res) => {
 
 app.use('/api/expenses', expensesRouter);
 
-app.listen(3000, () => {
-  console.log('Server listening on http://localhost:3000');
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
 
 export default app;
