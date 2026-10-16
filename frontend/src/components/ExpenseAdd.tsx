@@ -1,24 +1,46 @@
-import type { Expense } from "../types/Expense";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import type { NewExpense } from "../types/Expense";
+import { ExpenseFormSchema, type ExpenseFormValues } from "../types/Expense";
 
 interface ExpenseAddProps {
-  addExpense: (expense: Expense) => void;
+    expenseAdd: (expense: NewExpense) => Promise<void>;
 }
 
-function generateRandomExpense(): Expense {
-  const id = Date.now().toString();
-  return {
-    id,
-    date: new Date().toISOString(),
-    description: `New expense ${id}`,
-    payer: Math.random() < 0.5 ? "Alice" : "Bob",
-    amount: Math.round(Math.random() * 100 * 100) / 100,
+function ExpenseAdd({ expenseAdd }: ExpenseAddProps) {
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<ExpenseFormValues>({
+    resolver: zodResolver(ExpenseFormSchema),
+  });
+
+  const onSubmit = async (data: ExpenseFormValues) => {
+    const newExpense: NewExpense = {
+      description: data.description,
+      payerId: data.payerId,
+      amount: data.amount,
+      date: data.date,
+      participants: data.participantsRaw
+        ? data.participantsRaw.split(',').map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n))
+        : [],
+    };
+    await expenseAdd(newExpense);
+    reset(); // clear the form
   };
-}
 
-function ExpenseAdd({ addExpense }: ExpenseAddProps) {
   return <div>
-    <h2>Add a new random Expense</h2>
-    <button onClick={() => addExpense(generateRandomExpense())}>Add</button>
+    <h2>Add expense</h2>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input type="text" {...register("description")} placeholder="Description (optional, max 200 chars)" />
+      {errors.description && <span>{errors.description.message}</span>}
+      <input type="number" {...register("payerId", { valueAsNumber: true })} placeholder="Payer ID" />
+      {errors.payerId && <span>{errors.payerId.message}</span>}
+      <input type="number" step="0.01" {...register("amount", { valueAsNumber: true })} placeholder="Amount" />
+      {errors.amount && <span>{errors.amount.message}</span>}
+      <input type="date" {...register("date")} placeholder="Date" />
+      {errors.date && <span>{errors.date.message}</span>}
+      <input type="text" {...register("participantsRaw")} placeholder="Participant IDs (comma-separated)" />
+      {errors.participantsRaw && <span>{errors.participantsRaw.message}</span>}
+      <button type="submit" className="btn btn-primary">Add</button>
+    </form>
   </div>;
 }
 

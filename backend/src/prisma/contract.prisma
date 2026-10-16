@@ -1,9 +1,43 @@
 // use prisma-next
 
+model User {
+  id          Int     @id @default(autoincrement())
+  name        String
+  email       String  @unique
+  bankAccount String? // optional
+
+  transfersOut         Transfer[] @relation("UserTransfersSource")
+  transfersIn          Transfer[] @relation("UserTransfersTarget")
+  participatedExpenses Expense[]  @relation("ParticipantExpenses")
+  paidExpenses         Expense[]  @relation("PayerExpenses")
+}
+
 model Expense {
-  id          Int               @id @default(autoincrement())
-  date        TimestamptzString @default(now())
-  description String
-  payer       String
-  amount      Float
+  id           Int               @id @default(autoincrement())
+  description  String
+  amount       Float
+  date         TimestamptzString @default(now())
+  payer        User              @relation("PayerExpenses", fields: [payerId], references: [id])
+  payerId      Int
+  participants User[]            @relation("ParticipantExpenses")
+}
+
+// Table de liaison N:M entre Expense et User (obligatoire en Prisma 8)
+model Participations {
+  expenseId Int
+  userId    Int
+  expense   Expense @relation("ParticipantExpenses", fields: [expenseId], references: [id], onDelete: Cascade)
+  user      User    @relation("ParticipantExpenses", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([expenseId, userId])
+}
+
+model Transfer {
+  id       Int               @id @default(autoincrement())
+  amount   Float
+  date     TimestamptzString @default(now())
+  source   User              @relation("UserTransfersSource", fields: [sourceId], references: [id])
+  sourceId Int
+  target   User              @relation("UserTransfersTarget", fields: [targetId], references: [id])
+  targetId Int
 }

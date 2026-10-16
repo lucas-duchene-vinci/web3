@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "node --watch --experimental-strip-types app.ts",
     "start": "node app.ts",
-    "build": "npm install && npm run contract:emit && npx prisma db update",
+    "build": "npm install && npm run contract:emit && npx prisma db migrate",
     "typecheck": "tsc --noEmit",
     "contract:emit": "prisma contract emit"
   },

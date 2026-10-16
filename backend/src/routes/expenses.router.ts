@@ -1,6 +1,5 @@
 
 import express from "express";
-import type { Expense } from "../types/Expense.ts";
 import { ExpensesService } from "../services/expense.service.ts";
 import { isValidNewExpense } from "../guards/expense.guard.ts";
 
@@ -17,12 +16,12 @@ expensesRouter.get("/", async (req, res) => {
 
 expensesRouter.post("/", async (req, res) => {
   try {
-    const expense: Expense = req.body;
-    if (!isValidNewExpense(expense)) {
+    const body: unknown = req.body; // on ne sait pas encore ce que le client a envoyé
+    if (!isValidNewExpense(body)) {
       return res.status(400).json({ error: "Invalid expense" });
     }
-    const expenses = await ExpensesService.addExpense(expense);
-    res.status(201).json(expenses);
+    const expense = await ExpensesService.addExpense(body); // ici TypeScript sait que body est un NewExpense
+    res.status(201).json(expense);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
   }

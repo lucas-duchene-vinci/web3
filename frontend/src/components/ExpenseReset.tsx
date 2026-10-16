@@ -1,14 +1,12 @@
 interface ExpenseResetProps {
-  resetExpenses: () => Promise<void>;
+  onReset: () => Promise<void>;
 }
 
-function ExpenseReset({ resetExpenses }: ExpenseResetProps) {
+function ExpenseReset({ onReset }: ExpenseResetProps) {
   return (
     <div>
       <h2>Reset expenses</h2>
-      <button
-        onClick={resetExpenses}
-      >
+      <button onClick={() => onReset().catch((error) => console.error(error))}>
         Reset
       </button>
     </div>
