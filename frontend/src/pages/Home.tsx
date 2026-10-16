@@ -3,11 +3,13 @@ import ExpenseItem from "../components/ExpenseItem";
 import { useState } from "react";
 import ExpenseAdd from "../components/ExpenseAdd";
 import useExpenses from "../hooks/useExpenses";
-import ExpenseReset from "../components/ExpenseReset";
+// Reset désactivé temporairement (la route /reset du backend n'est pas encore migrée vers Prisma).
+// Pour le réactiver : décommenter cet import, `resetExpenses` ci-dessous et <ExpenseReset />.
+// import ExpenseReset from "../components/ExpenseReset";
 import ExpenseSorter from "../components/ExpenseSorter";
 
 function Home() {
-  const { expenses, addExpense, resetExpenses } = useExpenses();
+  const { expenses, addExpense /*, resetExpenses */ } = useExpenses();
   const [sortingAlgo, setSortingAlgo] = useState<(a: Expense, b: Expense) => number>(() => () => 1);
 
   const handleAlgoChange = (algo: (a: Expense, b: Expense) => number) => {
@@ -19,7 +21,7 @@ function Home() {
   return <div>
     <h1>Manage your expenses</h1>
     <ExpenseAdd addExpense={addExpense} />
-    <ExpenseReset resetExpenses={resetExpenses}/>
+    {/* <ExpenseReset resetExpenses={resetExpenses}/> */}
     <h2>Your expenses</h2>
     {sortedExpenses.length > 0 && <ExpenseSorter setSortingAlgo={handleAlgoChange} />}
     <ul>
